@@ -1,0 +1,10 @@
+# Files
+
+*.json
+/AFK_for_UGC/tasks.md
+
+# Folders
+
+/AFK_for_UGC/src/ServerScriptService/
+/xGoblins_Hub/src/ServerScriptService/
+/Hub_Tests
