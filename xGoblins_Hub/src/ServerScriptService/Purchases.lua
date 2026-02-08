@@ -66,8 +66,8 @@ local stock4 = dsGet("stock4")
 
 local SentWebhooks = {}
 
-local WEBHOOK1 = "https://discord.com/api/webhooks/1443801785784336525/hoLZGGjFhslXYg8cOdCask-LXBrEtAqWjrypYdZ8aCwBYBgbebH9sdeJQGz8xqOeIAG8"
-local WEBHOOK2 = "https://discord.com/api/webhooks/1457016835017933009/UNe2mxniYZPwsq8mi0ZZtbIlOM1Jusc21D2p2x9Rgl50ITPBpSEqqRnTbpTJBF17CAV6"
+local WEBHOOK1 = "webhook"
+local WEBHOOK2 = "webhook"
 
 -- functions
 
