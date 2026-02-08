@@ -23,6 +23,7 @@ local FreePointsTab = Tabs:WaitForChild("FreePointsTab")
 local PerksTab = Tabs:WaitForChild("PerksTab")
 local CreditsTab = Tabs:WaitForChild("CreditsTab")
 local UGCStoreTab = Tabs:WaitForChild("UGCStoreTab")
+local GiftTab = Tabs:WaitForChild("GiftTabFindPlayer")
 
 -- Buttons
 
@@ -44,6 +45,7 @@ local FreePointsExitBtn = FreePointsTab:WaitForChild("ExitButton")
 local PerksExitBtn = PerksTab:WaitForChild("ExitButton")
 local CreditsExitBtn = CreditsTab:WaitForChild("ExitButton")
 local UGCStoreExitBtn = UGCStoreTab:WaitForChild("ExitButton")
+local GiftExitBtn = GiftTab:WaitForChild("ExitButton")
 
 -- Functions
 
@@ -54,10 +56,18 @@ local function OpenTab(Tab)
 	PerksTab.Visible = false
 	CreditsTab.Visible = false
 	UGCStoreTab.Visible = false
+	GiftTab.Visible = false
 	Tab.Visible = true
 end
 
 local function CloseTab(Tab)
+	DailyRewardsTab.Visible = false
+	RedeemCodesTab.Visible = false
+	FreePointsTab.Visible = false
+	PerksTab.Visible = false
+	CreditsTab.Visible = false
+	UGCStoreTab.Visible = false
+	GiftTab.Visible = false
 	Tab.Visible = false
 end
 
@@ -137,6 +147,10 @@ end)
 
 UGCStoreExitBtn.MouseButton1Click:Connect(function()
 	CloseTab(UGCStoreTab)
+end)
+
+GiftExitBtn.MouseButton1Click:Connect(function()
+	CloseTab(GiftTab)
 end)
 
 -- Roblox Buttons

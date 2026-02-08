@@ -2,6 +2,7 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
 local Players = game.Players
 
 -- Variables
@@ -11,6 +12,9 @@ local CheckDaily = ReplicatedStorage:WaitForChild("Points"):WaitForChild("CheckD
 local GameLoaded = ReplicatedStorage:WaitForChild("GameLoaded")
 
 local MainFrame = script.Parent.Parent
+
+local countdownConnection
+local countdownLabel = MainFrame:WaitForChild("Tabs"):WaitForChild("DailyRewardsTab"):WaitForChild("TextLabel")
 
 local ErrorTab = MainFrame:WaitForChild("Tabs"):WaitForChild("ErrorTab")
 local ErrorLabel = ErrorTab:WaitForChild("ErrorLabel")
@@ -59,6 +63,8 @@ local ClaimButtonDay = {
 
 local tweeninfo = TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
 
+local nextClaimAt
+
 -- function
 
 local function DayVisibility(allowedDay, progress, status)
@@ -100,8 +106,6 @@ local function DayVisibility(allowedDay, progress, status)
 	end
 end
 
-
-
 local function WarningVisibilityOn()
 	ErrorTab.Visible = true
 	local Tween = TweenService:Create(ErrorTab, tweeninfo, {BackgroundTransparency = 0})
@@ -130,32 +134,35 @@ local function WarningVisibilityOff()
 	end)
 end
 
+local function formatTime(seconds)
+	seconds = math.max(0, math.floor(seconds))
+	local h = math.floor(seconds / 3600)
+	local m = math.floor((seconds % 3600) / 60)
+	local s = seconds % 60
+	return string.format("%02d:%02d:%02d", h, m, s)
+end
+
+local function startCountdown()
+	if countdownConnection then countdownConnection:Disconnect() end
+
+	countdownConnection = RunService.Heartbeat:Connect(function()
+		local serverNow = workspace:GetServerTimeNow()
+		local remaining = nextClaimAt - serverNow
+
+		if remaining <= 0 then
+			countdownLabel.Text = "Reward Available!"
+			countdownConnection:Disconnect()
+			CheckDay:FireServer()
+			return
+		end
+
+		countdownLabel.Text = "Next reward in: " .. formatTime(remaining)
+	end)
+end
+
 -- Start
 
 CheckDay:FireServer()
-
-CheckDay.OnClientEvent:Connect(function(ok, status, allowedDay, progress)
-	if not ok and status == "datastore_error" then
-		ErrorLabel.Text = tostring(status)
-		WarningVisibilityOn()
-		task.wait(1.5)
-		WarningVisibilityOff()
-		return
-	end
-
-	if status == "ok" then
-		DayVisibility(allowedDay, progress, status)
-	elseif status == "claimed_today" then
-		DayVisibility(allowedDay, progress, status)
-	elseif status == "claimed_all" then
-		for i = 1, 7 do
-			ClaimedDays[i].Visible = true
-			NotClaimedDays[i].Visible = false
-		end
-	else
-		DayVisibility(allowedDay, progress, status)
-	end
-end)
 
 -- Events
 
@@ -170,7 +177,7 @@ for i = 1, 7 do
 	end)
 end
 
-CheckDaily.OnClientEvent:Connect(function(ok, status, dayIndex, reward, claimedAll)
+CheckDaily.OnClientEvent:Connect(function(ok, status)
 	if not ok then
 		ErrorLabel.Text = tostring(status)
 		WarningVisibilityOn()
@@ -183,6 +190,37 @@ CheckDaily.OnClientEvent:Connect(function(ok, status, dayIndex, reward, claimedA
 
 	CheckDay:FireServer()
 end)
+
+CheckDay.OnClientEvent:Connect(function(ok, status, allowedDayOrRemaining, progress, nextDayIndex)
+	if not ok and status == "datastore_error" then
+		ErrorLabel.Text = tostring(status)
+		WarningVisibilityOn()
+		task.wait(1.5)
+		WarningVisibilityOff()
+		return
+	end
+
+	if status == "cooldown" then
+		nextClaimAt = workspace:GetServerTimeNow() + allowedDayOrRemaining
+		startCountdown()
+		DayVisibility(nextDayIndex, progress, status)
+		return
+	end
+
+	if status == "ok" then
+		countdownLabel.Text = ""
+		DayVisibility(allowedDayOrRemaining, progress, status)
+		return
+	end
+
+	if status == "claimed_all" then
+		for i = 1, 7 do
+			ClaimedDays[i].Visible = true
+			NotClaimedDays[i].Visible = false
+		end
+	end
+end)
+
 
 task.wait(4)
 GameLoaded:FireServer("DailyRewardsTab")

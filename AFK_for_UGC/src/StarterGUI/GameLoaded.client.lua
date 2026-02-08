@@ -7,7 +7,7 @@ local TweenService = game:GetService("TweenService")
 
 local GameLoaded = ReplicatedStorage:WaitForChild("GameLoaded")
 
-local totalSteps = 5
+local totalSteps = 8
 local done = {}
 local completed = 0
 

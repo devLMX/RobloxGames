@@ -1,10 +1,10 @@
 -- Variables
 
+local GameLoaded = game:GetService("ReplicatedStorage"):WaitForChild("GameLoaded")
 local image = script.parent.ImageLabel
 local speed = 15
 
 -- Functions
-
 
 local function whenTweenCompleted(state) 
 	if state == Enum.TweenStatus.Completed then 
@@ -28,3 +28,5 @@ image:TweenPosition(UDim2.new(-1,0,0,0),
 	false, 
 	whenTweenCompleted 
 )
+
+GameLoaded:FireServer("TweenBackground")
